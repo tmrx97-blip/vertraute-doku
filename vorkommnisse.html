@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>vertraute-doku · Vorkommnisse</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --card: #FFFFFF;
+  --accent: #8B4513;
+  --accent-light: #F5EDE4;
+  --accent-dark: #5C2E0E;
+  --text: #2C2C2C;
+  --text-soft: #6B6B6B;
+  --text-muted: #9B9B9B;
+  --border: #E5E0D8;
+  --danger: #C44D4D;
+  --danger-light: #FDF0F0;
+  --warn: #D4940A;
+  --warn-light: #FFF8E7;
+  --high: #E65100;
+  --high-light: #FFF3E0;
+  --notfall: #B71C1C;
+  --notfall-light: #FFEBEE;
+  --ok: #2E7D32;
+  --ok-light: #E8F5E9;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+font-family: 'DM Sans', sans-serif;
+background: var(--bg);
+color: var(--text);
+min-height: 100dvh;
+-webkit-tap-highlight-color: transparent;
+}
+
+/* NAV */
+.nav {
+position: sticky; top: 0; z-index: 100;
+background: var(--accent-dark);
+padding: 12px 20px;
+display: flex; align-items: center; justify-content: space-between;
+box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.nav-brand {
+font-family: 'DM Serif Display', serif;
+font-size: 1.2rem; color: #fff; letter-spacing: 0.5px;
+}
+.nav-brand span { font-size: 0.8rem; opacity: 0.7; font-family: 'DM Sans'; }
+.nav-actions { display: flex; gap: 8px; }
+.nav-btn {
+background: rgba(255,255,255,0.15); border: none; color: #fff;
+padding: 8px 14px; border-radius: 20px;
+display: flex; align-items: center; justify-content: center; gap: 6px;
+cursor: pointer; font-size: 0.85rem; font-family: 'DM Sans'; font-weight: 500;
+transition: all 0.2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* MAIN */
+.main { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+/* TOOLBAR */
+.toolbar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.search-box { flex: 1; min-width: 200px; position: relative; }
+.search-box input {
+width: 100%; padding: 10px 14px 10px 38px;
+border: 2px solid var(--border); border-radius: var(--radius);
+font-size: 0.95rem; font-family: 'DM Sans'; background: var(--card);
+transition: border-color 0.2s;
+}
+.search-box input:focus { outline: none; border-color: var(--accent); }
+.search-box::before {
+content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;
+}
+
+.btn {
+padding: 10px 20px; border-radius: var(--radius); border: none;
+font-family: 'DM Sans'; font-size: 0.9rem; font-weight: 600;
+cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary { background: var(--card); color: var(--text); border: 2px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-small { padding: 6px 12px; font-size: 0.8rem; }
+
+/* INCIDENT LIST */
+.incident-list { display: flex; flex-direction: column; gap: 10px; }
+.incident-card {
+background: var(--card); border-radius: var(--radius); padding: 16px 20px;
+box-shadow: var(--shadow-sm); border-left: 5px solid var(--border);
+cursor: pointer; transition: all 0.2s;
+}
+.incident-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.incident-card.d-niedrig { border-left-color: var(--ok); }
+.incident-card.d-mittel { border-left-color: var(--warn); }
+.incident-card.d-hoch { border-left-color: var(--high); }
+.incident-card.d-notfall { border-left-color: var(--notfall); background: var(--notfall-light); }
+.incident-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.incident-date { font-weight: 700; font-size: 1rem; }
+.incident-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.badge-niedrig { background: var(--ok-light); color: var(--ok); }
+.badge-mittel { background: var(--warn-light); color: var(--warn); }
+.badge-hoch { background: var(--high-light); color: var(--high); }
+.badge-notfall { background: var(--notfall-light); color: var(--notfall); }
+.badge-fahrt { background: #E3F2FD; color: #1565C0; }
+.badge-offen { background: #FCE4EC; color: #C62828; }
+.incident-summary { font-size: 0.9rem; color: var(--text-soft); margin-top: 4px; }
+.incident-summary .label { font-weight: 600; color: var(--text-soft); font-size: 0.8rem; }
+
+/* DETAIL VIEW */
+.detail-view { display: none; }
+.detail-view.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.detail-header {
+display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+}
+.detail-header .back-btn {
+background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--accent); padding: 4px;
+}
+.detail-header h2 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
+
+.detail-card {
+background: var(--card); border-radius: var(--radius); padding: 20px;
+box-shadow: var(--shadow-sm); margin-bottom: 14px;
+}
+.detail-section-title {
+font-family: 'DM Serif Display', serif; font-size: 1.05rem;
+color: var(--accent-dark); margin-bottom: 12px; padding-bottom: 6px;
+border-bottom: 2px solid var(--accent-light);
+}
+.detail-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem;
+}
+.detail-grid .item .label { font-weight: 600; color: var(--text-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.3px; }
+.detail-grid .item p { margin-top: 2px; }
+.detail-grid .item.full { grid-column: 1 / -1; }
+
+.stimmung-bar {
+display: flex; gap: 4px; margin-top: 4px;
+}
+.stimmung-dot {
+width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+font-size: 0.75rem; font-weight: 700; color: #fff;
+}
+.stimmung-dot.active { box-shadow: 0 0 0 3px var(--accent), 0 0 0 5px var(--accent-light); }
+.s1 { background: #C62828; } .s2 { background: #E65100; } .s3 { background: #F9A825; }
+.s4 { background: #66BB6A; } .s5 { background: #2E7D32; }
+
+/* MODAL / FORM */
+.modal-overlay {
+display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+z-index: 200; justify-content: center; align-items: flex-start;
+padding: 30px 16px; overflow-y: auto;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+background: var(--card); border-radius: var(--radius); padding: 24px;
+width: 100%; max-width: 650px; box-shadow: var(--shadow-lg);
+animation: modalIn 0.25s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.95); } }
+.modal h3 { font-family: 'DM Serif Display'; font-size: 1.3rem; margin-bottom: 16px; }
+
+.form-card {
+background: var(--bg); border-radius: var(--radius-sm); padding: 16px;
+margin-bottom: 12px;
+}
+.form-section-title {
+font-family: 'DM Serif Display', serif; font-size: 1rem;
+color: var(--accent-dark); margin-bottom: 12px; padding-bottom: 6px;
+border-bottom: 2px solid var(--accent-light);
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 3px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+font-size: 0.78rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.4px;
+}
+.form-group input, .form-group select, .form-group textarea {
+padding: 9px 11px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+font-family: 'DM Sans'; font-size: 0.92rem; background: var(--card);
+transition: border-color 0.2s; width: 100%;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+outline: none; border-color: var(--accent); background: #fff;
+}
+.form-group textarea { resize: vertical; min-height: 55px; }
+.form-actions {
+display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; padding-top: 14px;
+border-top: 1px solid var(--border);
+}
+
+/* CONDITIONAL SECTIONS */
+.conditional { display: none; margin-top: 8px; padding: 12px; background: var(--accent-light); border-radius: var(--radius-sm); }
+.conditional.show { display: block; animation: fadeIn 0.2s ease; }
+
+/* STIMMUNG SELECTOR */
+.stimmung-select { display: flex; gap: 6px; margin-top: 4px; }
+.stimmung-btn {
+width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent;
+font-size: 0.85rem; font-weight: 700; color: #fff; cursor: pointer;
+transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.stimmung-btn:hover { transform: scale(1.15); }
+.stimmung-btn.selected { border-color: var(--accent-dark); box-shadow: 0 0 0 2px var(--accent-light); transform: scale(1.1); }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* DATA SECTION */
+.data-section {
+background: var(--card); border-radius: var(--radius); padding: 20px;
+margin-bottom: 14px; box-shadow: var(--shadow-sm);
+}
+.data-section h3 { font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+.data-section p { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 12px; }
+
+/* TOAST */
+.toast {
+position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+background: var(--accent-dark); color: #fff; padding: 12px 24px;
+border-radius: 30px; font-size: 0.9rem; font-weight: 500;
+box-shadow: var(--shadow-lg); z-index: 300;
+animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+}
+@keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(20px); } }
+@keyframes toastOut { to { opacity:0; transform: translateX(-50%) translateY(20px); } }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+.nav { padding: 10px 14px; }
+.nav-brand { font-size: 1rem; }
+.main { padding: 14px; }
+.form-grid { grid-template-columns: 1fr; }
+.detail-grid { grid-template-columns: 1fr; }
+.toolbar { flex-direction: column; }
+}
+
+/* ─── DRUCKEN / PDF EXPORT (Versicherungs-Layout) ─── */
+@media print {
+  body { background: #fff; color: #000; font-size: 10pt; }
+  .nav, .no-print, .back-btn { display: none !important; }
+  .main { padding: 0; max-width: 100%; margin: 0; }
+  .detail-card { box-shadow: none; border: 1px solid #ccc; margin-bottom: 15px; break-inside: avoid; background: #fff !important; padding: 15px; }
+  .detail-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+  .badge { border: 1px solid #000; color: #000 !important; background: transparent !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">vertraute-doku <span>· Vorkommnisse</span></div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="showDataModal()">💾 Backup</button>
+    <button class="nav-btn" onclick="openForm()">＋ Neu</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div id="list-view">
+    <div class="toolbar no-print">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Suchen (Datum, Text, Ort)…" oninput="renderList()">
+      </div>
+      <select id="filter-dringlichkeit" onchange="renderList()" style="padding:10px;border:2px solid var(--border);border-radius:var(--radius);font-family:'DM Sans';font-size:0.9rem;background:var(--card);">
+        <option value="">Alle Dringlichkeiten</option>
+        <option value="Niedrig">Niedrig</option>
+        <option value="Mittel">Mittel</option>
+        <option value="Hoch">Hoch</option>
+        <option value="Notfall">Notfall</option>
+      </select>
+    </div>
+    <div class="incident-list" id="incident-list"></div>
+  </div>
+
+  <div id="detail-view" class="detail-view"></div>
+</div>
+
+<div class="modal-overlay no-print" id="modal-form">
+  <div class="modal">
+    <h3 id="form-title">Neues Vorkommnis</h3>
+    <form id="incident-form" onsubmit="saveIncident(event)">
+      <input type="hidden" id="f-id">
+
+  <div class="form-card">
+    <div class="form-section-title">Grunddaten</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Datum</label><input id="f-datum" type="date" required></div>
+      <div class="form-group"><label>Uhrzeit</label><input id="f-uhrzeit" type="time" required></div>
+      <div class="form-group full"><label>Was wurde gerade gemacht?</label><textarea id="f-taetigkeit" rows="2" required placeholder="z.B. Spaziergang im Park, Medikamente richten…"></textarea></div>
+      <div class="form-group"><label>Ort</label><input id="f-ort" placeholder="z.B. Wohnung, Park, Arztpraxis"></div>
+      <div class="form-group"><label>Dringlichkeit</label>
+        <select id="f-dringlichkeit" required>
+          <option>Niedrig</option><option>Mittel</option><option>Hoch</option><option>Notfall</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Was ist passiert?</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Beschreibung des Vorkommnisses</label><textarea id="f-beschreibung" rows="4" required placeholder="Beschreibe so genau wie möglich, was passiert ist…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Stimmung (Skala 1–5)</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div class="stimmung-select" id="stimmung-select">
+        <button type="button" class="stimmung-btn s1" onclick="setStimmung(1)">1</button>
+        <button type="button" class="stimmung-btn s2" onclick="setStimmung(2)">2</button>
+        <button type="button" class="stimmung-btn s3" onclick="setStimmung(3)">3</button>
+        <button type="button" class="stimmung-btn s4" onclick="setStimmung(4)">4</button>
+        <button type="button" class="stimmung-btn s5" onclick="setStimmung(5)">5</button>
+      </div>
+      <span style="font-size:0.8rem;color:var(--text-soft);">1 = sehr schlecht · 5 = sehr gut</span>
+    </div>
+    <input type="hidden" id="f-stimmung" value="3">
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Zustand & Beobachtungen</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Zustand der Wohnung</label><textarea id="f-wohnung" rows="2" placeholder="z.B. Ordentlich, unaufgeräumt, Geruch…"></textarea></div>
+      <div class="form-group full"><label>Was ich NICHT gemacht habe</label><textarea id="f-nicht-gemacht" rows="2" placeholder="z.B. Einkauf nicht geschafft, Arzt nicht angerufen…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Folgeaktionen</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Folgeaktion erforderlich?</label>
+        <select id="f-folgeaktion" onchange="toggleConditional()"><option>Nein</option><option>Ja</option></select>
+      </div>
+      <div class="form-group"><label>Wer übernimmt?</label>
+        <select id="f-wer"><option value="">–</option><option>Ich</option><option>Angehörige</option><option>Arzt</option><option>Dienst</option><option>Nachbar</option><option>Andere</option></select>
+      </div>
+      <div class="form-group"><label>Dokumentation abgeschlossen?</label>
+        <select id="f-doku-abgeschlossen"><option>Ja</option><option>Nein</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Information an Dritte</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Dritte informiert?</label>
+        <select id="f-info-dritte" onchange="toggleInfoDritte()"><option>Nein</option><option>Ja</option></select>
+      </div>
+    </div>
+    <div class="conditional" id="cond-info-dritte">
+      <div class="form-grid">
+        <div class="form-group"><label>Wer wurde informiert?</label><input id="f-info-wer" placeholder="z.B. Sohn, Hausarzt"></div>
+        <div class="form-group full"><label>Was wurde mitgeteilt?</label><textarea id="f-info-was" rows="2"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Fahrt im Auto</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Fahrt im Auto?</label>
+        <select id="f-fahrt" onchange="toggleFahrt()"><option>Nein</option><option>Ja</option></select>
+      </div>
+    </div>
+    <div class="conditional" id="cond-fahrt">
+      <div class="form-grid">
+        <div class="form-group"><label>Fahrtdatum</label><input id="f-fahrt-datum" type="date"></div>
+        <div class="form-group"><label>Uhrzeit von</label><input id="f-fahrt-von" type="time"></div>
+        <div class="form-group"><label>Uhrzeit bis</label><input id="f-fahrt-bis" type="time"></div>
+        <div class="form-group"><label>Von (Ort)</label><input id="f-fahrt-ort-von" placeholder="Startort"></div>
+        <div class="form-group"><label>Nach (Ort)</label><input id="f-fahrt-ort-nach" placeholder="Zielort"></div>
+        <div class="form-group"><label>Ankunft ohne Zwischenfälle?</label>
+          <select id="f-fahrt-ok"><option>Ja</option><option>Nein</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-form')">Abbrechen</button>
+    <button type="submit" class="btn btn-primary">Speichern</button>
+  </div>
+</form>
+
+  </div>
+</div>
+
+<div class="modal-overlay no-print" id="modal-data">
+  <div class="modal">
+    <h3>Backup & Daten</h3>
+    <div class="data-section">
+      <h3>📤 Daten exportieren</h3>
+      <p>Speichert alle Vorkommnisse als JSON-Datei.</p>
+      <button class="btn btn-primary" onclick="exportData()">Export herunterladen</button>
+    </div>
+    <div class="data-section">
+      <h3>📥 Daten importieren</h3>
+      <p>Lade eine zuvor exportierte JSON-Datei. Bestehende Daten werden überschrieben!</p>
+      <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="font-size:0.9rem;">
+    </div>
+    <div class="data-section">
+      <h3>🗑️ Alle Daten löschen</h3>
+      <button class="btn btn-danger btn-small" onclick="clearAll()">Alle Vorkommnisse löschen</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-data')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let incidents = [];
+let currentStimmung = 3;
+let currentDetailId = null;
+
+function load() {
+  try { incidents = JSON.parse(localStorage.getItem('vd_incidents') || '[]'); } catch(e) { incidents = []; }
+}
+function save() { localStorage.setItem('vd_incidents', JSON.stringify(incidents)); }
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function formatDate(d) { if (!d) return ''; const p = d.split('-'); return p.length === 3 ? `${p[2]}.${p[1]}.${p[0]}` : d; }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function showDataModal() { document.getElementById('modal-data').classList.add('active'); }
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+
+// STIMMUNG
+function setStimmung(val) {
+  currentStimmung = val;
+  document.getElementById('f-stimmung').value = val;
+  document.querySelectorAll('.stimmung-btn').forEach((b, i) => {
+    b.classList.toggle('selected', i + 1 === val);
+  });
+}
+
+// CONDITIONAL TOGGLES
+function toggleFahrt() {
+  const show = document.getElementById('f-fahrt').value === 'Ja';
+  document.getElementById('cond-fahrt').classList.toggle('show', show);
+  if (show && !document.getElementById('f-fahrt-datum').value) {
+    document.getElementById('f-fahrt-datum').value = document.getElementById('f-datum').value;
+  }
+}
+function toggleInfoDritte() {
+  const show = document.getElementById('f-info-dritte').value === 'Ja';
+  document.getElementById('cond-info-dritte').classList.toggle('show', show);
+}
+function toggleConditional() { /* no extra UI needed */ }
+
+// LIST
+function renderList() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const df = document.getElementById('filter-dringlichkeit').value;
+  let filtered = incidents.filter(i => {
+    const matchQ = !q || i.beschreibung.toLowerCase().includes(q) || i.ort.toLowerCase().includes(q) ||
+      i.taetigkeit.toLowerCase().includes(q) || formatDate(i.datum).includes(q);
+    const matchD = !df || i.dringlichkeit === df;
+    return matchQ && matchD;
+  });
+  filtered.sort((a, b) => (b.datum + b.uhrzeit).localeCompare(a.datum + a.uhrzeit));
+
+  if (filtered.length === 0) {
+    document.getElementById('incident-list').innerHTML = incidents.length === 0
+      ? '<div class="empty-state"><div class="icon">⚠️</div><p>Noch keine Vorkommnisse dokumentiert.<br>Tippe oben auf „＋ Neu"</p></div>'
+      : '<div class="empty-state"><div class="icon">🔍</div><p>Keine Treffer</p></div>';
+    return;
+  }
+
+  document.getElementById('incident-list').innerHTML = filtered.map(i => {
+    const dc = 'd-' + i.dringlichkeit.toLowerCase();
+    const bc = 'badge-' + i.dringlichkeit.toLowerCase();
+    const badges = [`<span class="badge ${bc}">${i.dringlichkeit}</span>`];
+    if (i.fahrt === 'Ja') badges.push('<span class="badge badge-fahrt">Fahrt</span>');
+    if (i.dokuAbgeschlossen === 'Nein') badges.push('<span class="badge badge-offen">Offen</span>');
+    return `<div class="incident-card ${dc}" onclick="showDetail('${i.id}')">
+      <div class="incident-header">
+        <span class="incident-date">${formatDate(i.datum)} · ${i.uhrzeit}</span>
+        <div class="incident-badges">${badges.join('')}</div>
+      </div>
+      <div class="incident-summary">
+        <span class="label">${esc(i.ort)}</span> · ${esc(i.taetigkeit).substring(0, 80)}${i.taetigkeit.length > 80 ? '…' : ''}
+      </div>
+      ${i.beschreibung ? `<div class="incident-summary" style="margin-top:4px;">${esc(i.beschreibung).substring(0, 120)}${i.beschreibung.length > 120 ? '…' : ''}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// DETAIL
+function showDetail(id) {
+  currentDetailId = id;
+  const i = incidents.find(x => x.id === id);
+  if (!i) return;
+
+  const f = (label, val) => val ? `<div class="item"><div class="label">${label}</div><p>${esc(val)}</p></div>` : '';
+  const ff = (label, val) => val ? `<div class="item full"><div class="label">${label}</div><p>${esc(val)}</p></div>` : '';
+  const bc = 'badge-' + i.dringlichkeit.toLowerCase();
+
+  const stimmungDots = [1,2,3,4,5].map(n =>
+    `<div class="stimmung-dot s${n} ${n === parseInt(i.stimmung) ? 'active' : ''}" style="opacity:${n === parseInt(i.stimmung) ? '1' : '0.3'}">${n}</div>`
+  ).join('');
+
+  let fahrtHtml = '';
+  if (i.fahrt === 'Ja') {
+    const dur = (i.fahrtVon && i.fahrtBis) ? calcDuration(i.fahrtVon, i.fahrtBis) : null;
+    fahrtHtml = `<div class="detail-card">
+      <div class="detail-section-title">Fahrt im Auto</div>
+      <div class="detail-grid">
+        ${f('Fahrtdatum', formatDate(i.fahrtDatum))}
+        ${f('Uhrzeit', (i.fahrtVon || '') + (i.fahrtBis ? ' – ' + i.fahrtBis : '') + (dur ? ' (' + dur + ' Min)' : ''))}
+        ${f('Von', i.fahrtOrtVon)} ${f('Nach', i.fahrtOrtNach)}
+        ${f('Ankunft ohne Zwischenfälle', i.fahrtOk)}
+      </div>
+    </div>`;
+  }
+
+  let infoHtml = '';
+  if (i.infoDritte === 'Ja') {
+    infoHtml = `<div class="detail-card">
+      <div class="detail-section-title">Information an Dritte</div>
+      <div class="detail-grid">
+        ${f('Wer wurde informiert', i.infoWer)}
+        ${ff('Was wurde mitgeteilt', i.infoWas)}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('detail-view').innerHTML = `
+    <div class="detail-header">
+      <button class="back-btn" onclick="hideDetail()">←</button>
+      <h2>Vorkommnis ${formatDate(i.datum)}</h2>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section-title">Grunddaten</div>
+      <div class="detail-grid">
+        ${f('Datum', formatDate(i.datum))} ${f('Uhrzeit', i.uhrzeit)}
+        ${f('Ort', i.ort)}
+        <div class="item"><div class="label">Dringlichkeit</div><p><span class="badge ${bc}">${i.dringlichkeit}</span></p></div>
+        ${ff('Was wurde gerade gemacht?', i.taetigkeit)}
+      </div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section-title">Was ist passiert?</div>
+      <p style="font-size:0.95rem;line-height:1.6;">${esc(i.beschreibung)}</p>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section-title">Stimmung</div>
+      <div class="stimmung-bar no-print">${stimmungDots}</div>
+      <div class="print-only" style="display:none; font-size: 0.9rem; margin-top: 4px;"><strong>Aufgezeichneter Wert:</strong> ${i.stimmung} von 5</div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section-title">Zustand & Beobachtungen</div>
+      <div class="detail-grid">
+        ${ff('Zustand der Wohnung', i.wohnung)}
+        ${ff('Was ich NICHT gemacht habe', i.nichtGemacht)}
+      </div>
+    </div>
+    <div class="detail-card">
+      <div class="detail-section-title">Folgeaktionen</div>
+      <div class="detail-grid">
+        ${f('Folgeaktion erforderlich', i.folgeaktion)}
+        ${f('Wer übernimmt', i.wer)}
+        ${f('Dokumentation abgeschlossen', i.dokuAbgeschlossen)}
+      </div>
+    </div>
+    ${infoHtml}
+    ${fahrtHtml}
+    <div class="no-print" style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+      <button class="btn btn-secondary" onclick="window.print()">📄 PDF / Drucken</button>
+      <button class="btn btn-primary" onclick="editIncident('${i.id}')">✏️ Bearbeiten</button>
+      <button class="btn btn-danger btn-small" onclick="deleteIncident('${i.id}')" style="margin-left:auto;">🗑️ Löschen</button>
+    </div>
+  `;
+
+  // Workaround für die Druck-Ansicht der Stimmung (Punkte werden oft nicht gut gedruckt)
+  const style = document.createElement('style');
+  style.innerHTML = `@media print { .print-only { display: block !important; } }`;
+  document.getElementById('detail-view').appendChild(style);
+
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').classList.add('active');
+}
+
+function hideDetail() {
+  document.getElementById('detail-view').classList.remove('active');
+  document.getElementById('list-view').style.display = 'block';
+  renderList();
+}
+
+// FORM
+function openForm() {
+  document.getElementById('form-title').textContent = 'Neues Vorkommnis';
+  document.getElementById('f-id').value = '';
+  document.getElementById('f-datum').value = new Date().toISOString().split('T')[0];
+  const now = new Date(); document.getElementById('f-uhrzeit').value = now.toTimeString().slice(0,5);
+  document.getElementById('f-taetigkeit').value = '';
+  document.getElementById('f-ort').value = '';
+  document.getElementById('f-dringlichkeit').value = 'Mittel';
+  document.getElementById('f-beschreibung').value = '';
+  setStimmung(3);
+  document.getElementById('f-wohnung').value = '';
+  document.getElementById('f-nicht-gemacht').value = '';
+  document.getElementById('f-folgeaktion').value = 'Nein';
+  document.getElementById('f-wer').value = '';
+  document.getElementById('f-doku-abgeschlossen').value = 'Ja';
+  document.getElementById('f-info-dritte').value = 'Nein';
+  document.getElementById('f-info-wer').value = '';
+  document.getElementById('f-info-was').value = '';
+  document.getElementById('f-fahrt').value = 'Nein';
+  document.getElementById('f-fahrt-datum').value = '';
+  document.getElementById('f-fahrt-von').value = '';
+  document.getElementById('f-fahrt-bis').value = '';
+  document.getElementById('f-fahrt-ort-von').value = '';
+  document.getElementById('f-fahrt-ort-nach').value = '';
+  document.getElementById('f-fahrt-ok').value = 'Ja';
+  document.getElementById('cond-fahrt').classList.remove('show');
+  document.getElementById('cond-info-dritte').classList.remove('show');
+  document.getElementById('modal-form').classList.add('active');
+}
+
+function editIncident(id) {
+  const i = incidents.find(x => x.id === id);
+  if (!i) return;
+  document.getElementById('form-title').textContent = 'Vorkommnis bearbeiten';
+  document.getElementById('f-id').value = id;
+  document.getElementById('f-datum').value = i.datum;
+  document.getElementById('f-uhrzeit').value = i.uhrzeit;
+  document.getElementById('f-taetigkeit').value = i.taetigkeit;
+  document.getElementById('f-ort').value = i.ort;
+  document.getElementById('f-dringlichkeit').value = i.dringlichkeit;
+  document.getElementById('f-beschreibung').value = i.beschreibung;
+  setStimmung(parseInt(i.stimmung) || 3);
+  document.getElementById('f-wohnung').value = i.wohnung || '';
+  document.getElementById('f-nicht-gemacht').value = i.nichtGemacht || '';
+  document.getElementById('f-folgeaktion').value = i.folgeaktion;
+  document.getElementById('f-wer').value = i.wer || '';
+  document.getElementById('f-doku-abgeschlossen').value = i.dokuAbgeschlossen;
+  document.getElementById('f-info-dritte').value = i.infoDritte;
+  document.getElementById('f-info-wer').value = i.infoWer || '';
+  document.getElementById('f-info-was').value = i.infoWas || '';
+  document.getElementById('f-fahrt').value = i.fahrt;
+  document.getElementById('f-fahrt-datum').value = i.fahrtDatum || '';
+  document.getElementById('f-fahrt-von').value = i.fahrtVon || '';
+  document.getElementById('f-fahrt-bis').value = i.fahrtBis || '';
+  document.getElementById('f-fahrt-ort-von').value = i.fahrtOrtVon || '';
+  document.getElementById('f-fahrt-ort-nach').value = i.fahrtOrtNach || '';
+  document.getElementById('f-fahrt-ok').value = i.fahrtOk || 'Ja';
+  toggleFahrt(); toggleInfoDritte();
+  document.getElementById('modal-form').classList.add('active');
+}
+
+function saveIncident(e) {
+  e.preventDefault();
+  const id = document.getElementById('f-id').value;
+  const data = {
+    datum: document.getElementById('f-datum').value,
+    uhrzeit: document.getElementById('f-uhrzeit').value,
+    taetigkeit: document.getElementById('f-taetigkeit').value.trim(),
+    ort: document.getElementById('f-ort').value.trim(),
+    dringlichkeit: document.getElementById('f-dringlichkeit').value,
+    beschreibung: document.getElementById('f-beschreibung').value.trim(),
+    stimmung: document.getElementById('f-stimmung').value,
+    wohnung: document.getElementById('f-wohnung').value.trim(),
+    nichtGemacht: document.getElementById('f-nicht-gemacht').value.trim(),
+    folgeaktion: document.getElementById('f-folgeaktion').value,
+    wer: document.getElementById('f-wer').value,
+    dokuAbgeschlossen: document.getElementById('f-doku-abgeschlossen').value,
+    infoDritte: document.getElementById('f-info-dritte').value,
+    infoWer: document.getElementById('f-info-wer').value.trim(),
+    infoWas: document.getElementById('f-info-was').value.trim(),
+    fahrt: document.getElementById('f-fahrt').value,
+    fahrtDatum: document.getElementById('f-fahrt-datum').value,
+    fahrtVon: document.getElementById('f-fahrt-von').value,
+    fahrtBis: document.getElementById('f-fahrt-bis').value,
+    fahrtOrtVon: document.getElementById('f-fahrt-ort-von').value.trim(),
+    fahrtOrtNach: document.getElementById('f-fahrt-ort-nach').value.trim(),
+    fahrtOk: document.getElementById('f-fahrt-ok').value,
+  };
+  if (id) {
+    const idx = incidents.findIndex(x => x.id === id);
+    if (idx >= 0) incidents[idx] = { ...incidents[idx], ...data };
+  } else {
+    data.id = genId();
+    incidents.push(data);
+  }
+  save();
+  closeModal('modal-form');
+  toast(id ? 'Vorkommnis aktualisiert' : 'Vorkommnis gespeichert');
+  if (currentDetailId) { showDetail(id || data.id); } else { renderList(); }
+}
+
+function deleteIncident(id) {
+  if (!confirm('Vorkommnis wirklich löschen?')) return;
+  incidents = incidents.filter(x => x.id !== id);
+  save(); toast('Vorkommnis gelöscht'); hideDetail();
+}
+
+function calcDuration(von, bis) {
+  if (!von || !bis) return null;
+  const [h1,m1] = von.split(':').map(Number);
+  const [h2,m2] = bis.split(':').map(Number);
+  return (h2 * 60 + m2) - (h1 * 60 + m1);
+}
+
+// EXPORT / IMPORT
+function exportData() {
+  const data = JSON.stringify({ incidents, exportDate: new Date().toISOString() }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `vorkommnisse-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(url); toast('Backup heruntergeladen');
+}
+
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (!confirm('Alle bestehenden Daten werden überschrieben! Fortfahren?')) { e.target.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.incidents) { incidents = data.incidents; save(); toast('Daten importiert'); closeModal('modal-data'); renderList(); }
+      else { alert('Ungültige Datei.'); }
+    } catch(err) { alert('Fehler beim Lesen.'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if (!confirm('ALLE Vorkommnisse unwiderruflich löschen?')) return;
+  if (!confirm('Wirklich sicher?')) return;
+  incidents = []; save(); toast('Alle Daten gelöscht'); closeModal('modal-data'); renderList();
+}
+
+// MODALS
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+// INIT
+load();
+renderList();
+</script>
+
+</body>
+</html>
