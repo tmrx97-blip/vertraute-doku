@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>vertraute-doku</title>
+<link href="[https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap](https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display&display=swap)" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --card: #FFFFFF;
+  --accent: #3D6B5E;
+  --accent-light: #E8F0EC;
+  --accent-dark: #2A4D42;
+  --text: #2C2C2C;
+  --text-soft: #6B6B6B;
+  --text-muted: #9B9B9B;
+  --border: #E5E0D8;
+  --danger: #C44D4D;
+  --danger-light: #FDF0F0;
+  --warn: #D4940A;
+  --warn-light: #FFF8E7;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+font-family: 'DM Sans', sans-serif;
+background: var(--bg);
+color: var(--text);
+min-height: 100dvh;
+-webkit-tap-highlight-color: transparent;
+}
+
+/* ─── NAV ─── */
+.nav {
+position: sticky; top: 0; z-index: 100;
+background: var(--accent-dark);
+padding: 12px 20px;
+display: flex; align-items: center; justify-content: space-between;
+box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.nav-brand {
+font-family: 'DM Serif Display', serif;
+font-size: 1.3rem; color: #fff; letter-spacing: 0.5px;
+}
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab {
+background: rgba(255,255,255,0.1);
+border: none; color: rgba(255,255,255,0.7);
+padding: 8px 16px; border-radius: 20px;
+font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500;
+cursor: pointer; transition: all 0.2s;
+}
+.nav-tab:hover { background: rgba(255,255,255,0.2); }
+.nav-tab.active { background: #fff; color: var(--accent-dark); }
+.nav-actions { display: flex; gap: 8px; }
+.nav-btn {
+background: rgba(255,255,255,0.15); border: none; color: #fff;
+width: 36px; height: 36px; border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+cursor: pointer; font-size: 1.1rem; transition: all 0.2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* ─── VIEWS ─── */
+.view { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+.view.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── SEARCH & FILTER BAR ─── */
+.toolbar {
+display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.search-box {
+flex: 1; min-width: 200px; position: relative;
+}
+.search-box input {
+width: 100%; padding: 10px 14px 10px 38px;
+border: 2px solid var(--border); border-radius: var(--radius);
+font-size: 0.95rem; font-family: 'DM Sans'; background: var(--card);
+transition: border-color 0.2s;
+}
+.search-box input:focus { outline: none; border-color: var(--accent); }
+.search-box::before {
+content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+font-size: 0.9rem;
+}
+.btn {
+padding: 10px 20px; border-radius: var(--radius); border: none;
+font-family: 'DM Sans'; font-size: 0.9rem; font-weight: 600;
+cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary { background: var(--card); color: var(--text); border: 2px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #a33; }
+.btn-small { padding: 6px 12px; font-size: 0.8rem; }
+
+/* ─── CUSTOMER LIST ─── */
+.customer-list { display: flex; flex-direction: column; gap: 10px; }
+.customer-card {
+background: var(--card); border-radius: var(--radius); padding: 16px 20px;
+border: 2px solid transparent; cursor: pointer;
+box-shadow: var(--shadow-sm); transition: all 0.2s;
+display: flex; align-items: center; gap: 16px;
+}
+.customer-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.customer-card .avatar {
+width: 48px; height: 48px; border-radius: 50%;
+background: var(--accent-light); color: var(--accent);
+display: flex; align-items: center; justify-content: center;
+font-weight: 700; font-size: 1rem; flex-shrink: 0;
+}
+.customer-card .info { flex: 1; min-width: 0; }
+.customer-card .name { font-weight: 600; font-size: 1.05rem; }
+.customer-card .meta { color: var(--text-soft); font-size: 0.85rem; margin-top: 2px; }
+.customer-card .badges { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
+.badge {
+padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+}
+.badge-active { background: var(--accent-light); color: var(--accent); }
+.badge-paused { background: var(--warn-light); color: var(--warn); }
+.badge-ended { background: #f0f0f0; color: var(--text-muted); }
+.badge-visit { background: #EDE7F6; color: #5E35B1; }
+
+/* ─── FORMS ─── */
+.form-card {
+background: var(--card); border-radius: var(--radius); padding: 24px;
+box-shadow: var(--shadow-sm); margin-bottom: 16px;
+}
+.form-section-title {
+font-family: 'DM Serif Display', serif; font-size: 1.15rem;
+color: var(--accent-dark); margin-bottom: 16px; padding-bottom: 8px;
+border-bottom: 2px solid var(--accent-light);
+}
+.form-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+font-size: 0.8rem; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-group input, .form-group select, .form-group textarea {
+padding: 10px 12px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+font-family: 'DM Sans'; font-size: 0.95rem; background: var(--bg);
+transition: border-color 0.2s; width: 100%;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+outline: none; border-color: var(--accent); background: #fff;
+}
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-actions {
+display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 16px;
+border-top: 1px solid var(--border);
+}
+
+/* ─── VISIT LIST ─── */
+.visit-card {
+background: var(--card); border-radius: var(--radius); padding: 16px 20px;
+box-shadow: var(--shadow-sm); margin-bottom: 10px; border-left: 4px solid var(--accent);
+}
+.visit-card.auff-relevant { border-left-color: var(--danger); }
+.visit-card.auff-leicht { border-left-color: var(--warn); }
+.visit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.visit-date { font-weight: 700; font-size: 1rem; }
+.visit-duration { color: var(--text-soft); font-size: 0.85rem; }
+.visit-details { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.9rem; }
+.visit-details .label { color: var(--text-soft); }
+.visit-notes { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.visit-notes p { font-size: 0.9rem; color: var(--text); margin-bottom: 4px; }
+.visit-notes .note-label { font-weight: 600; color: var(--text-soft); font-size: 0.8rem; }
+.visit-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ─── DASHBOARD ─── */
+.stats-grid {
+display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+gap: 14px; margin-bottom: 24px;
+}
+.stat-card {
+background: var(--card); border-radius: var(--radius); padding: 20px;
+box-shadow: var(--shadow-sm); text-align: center;
+}
+.stat-value { font-family: 'DM Serif Display'; font-size: 2rem; color: var(--accent); }
+.stat-label { font-size: 0.8rem; color: var(--text-soft); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ─── DETAIL VIEW HEADER ─── */
+.detail-header {
+display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+}
+.detail-header .back-btn {
+background: none; border: none; font-size: 1.5rem; cursor: pointer;
+color: var(--accent); padding: 4px;
+}
+.detail-header h2 {
+font-family: 'DM Serif Display', serif; font-size: 1.5rem;
+}
+.detail-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+.detail-tab {
+padding: 8px 16px; border-radius: 20px; border: 2px solid var(--border);
+background: var(--card); font-family: 'DM Sans'; font-size: 0.85rem;
+cursor: pointer; font-weight: 500; transition: all 0.2s;
+}
+.detail-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+z-index: 200; justify-content: center; align-items: flex-start;
+padding: 40px 20px; overflow-y: auto;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+background: var(--card); border-radius: var(--radius); padding: 28px;
+width: 100%; max-width: 600px; box-shadow: var(--shadow-lg);
+animation: modalIn 0.25s ease;
+}
+@keyframes modalIn { from { opacity:0; transform:scale(0.95); } }
+.modal h3 { font-family: 'DM Serif Display'; font-size: 1.3rem; margin-bottom: 20px; }
+
+/* ─── EXPORT/IMPORT ─── */
+.data-section {
+background: var(--card); border-radius: var(--radius); padding: 20px;
+margin-bottom: 14px; box-shadow: var(--shadow-sm);
+}
+.data-section h3 { font-size: 1rem; font-weight: 600; margin-bottom: 10px; }
+.data-section p { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 12px; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+text-align: center; padding: 60px 20px; color: var(--text-muted);
+}
+.empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 1rem; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+.nav { padding: 10px 14px; }
+.nav-brand { font-size: 1.1rem; }
+.nav-tab { padding: 6px 12px; font-size: 0.8rem; }
+.view { padding: 14px; }
+.form-grid { grid-template-columns: 1fr; }
+.visit-details { grid-template-columns: 1fr; }
+.stats-grid { grid-template-columns: 1fr 1fr; }
+.customer-card { padding: 12px 14px; }
+.toolbar { flex-direction: column; }
+}
+
+/* ─── TOAST ─── */
+.toast {
+position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+background: var(--accent-dark); color: #fff; padding: 12px 24px;
+border-radius: 30px; font-size: 0.9rem; font-weight: 500;
+box-shadow: var(--shadow-lg); z-index: 300;
+animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards;
+}
+@keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(20px); } }
+@keyframes toastOut { to { opacity:0; transform: translateX(-50%) translateY(20px); } }
+</style>
+
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">vertraute-doku</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('dashboard')">Übersicht</button>
+    <button class="nav-tab" onclick="showView('customers')">Kunden</button>
+  </div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="showDataModal()" title="Backup">💾</button>
+  </div>
+</nav>
+
+<div id="view-dashboard" class="view active">
+  <div class="stats-grid" id="stats-grid"></div>
+  <h3 style="font-family:'DM Serif Display';margin-bottom:14px;">Letzte Besuche</h3>
+  <div id="recent-visits"></div>
+</div>
+
+<div id="view-customers" class="view">
+  <div class="toolbar">
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Kunden suchen…" oninput="renderCustomerList()">
+    </div>
+    <button class="btn btn-primary" onclick="openCustomerForm()">＋ Neuer Kunde</button>
+  </div>
+  <div class="customer-list" id="customer-list"></div>
+</div>
+
+<div id="view-detail" class="view">
+  <div class="detail-header">
+    <button class="back-btn" onclick="showView('customers')">←</button>
+    <h2 id="detail-name"></h2>
+  </div>
+  <div class="detail-tabs">
+    <button class="detail-tab active" onclick="showDetailTab('stamm')">Stammdaten</button>
+    <button class="detail-tab" onclick="showDetailTab('besuche')">Besuche</button>
+  </div>
+  <div id="detail-stamm"></div>
+  <div id="detail-besuche" style="display:none"></div>
+</div>
+
+<div class="modal-overlay" id="modal-customer">
+  <div class="modal" style="max-width:700px;">
+    <h3 id="customer-form-title">Neuer Kunde</h3>
+    <form id="customer-form" onsubmit="saveCustomer(event)">
+      <input type="hidden" id="cf-id">
+
+  <div class="form-card">
+    <div class="form-section-title">Grunddaten</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Name (Kürzel)</label><input id="cf-name" required placeholder="z.B. Brigitte K."></div>
+      <div class="form-group"><label>Geburtsdatum</label><input id="cf-birthday" type="date"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="cf-status"><option>Aktiv</option><option>Pausiert</option><option>Beendet</option></select>
+      </div>
+      <div class="form-group"><label>Pflegegrad</label>
+        <select id="cf-pflegegrad"><option value="">–</option><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      </div>
+      <div class="form-group"><label>Bezahlt</label>
+        <select id="cf-bezahlt"><option>Ja</option><option>Nein</option></select>
+      </div>
+      <div class="form-group"><label>Urlaub</label><input id="cf-urlaub" placeholder="z.B. 01.08.–15.08."></div>
+      <div class="form-group"><label>Erstbesuch</label><input id="cf-erstbesuch" type="date"></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Gesundheit</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Hausarzt</label><input id="cf-hausarzt"></div>
+      <div class="form-group"><label>Tel. Hausarzt</label><input id="cf-hausarzt-tel"></div>
+      <div class="form-group"><label>E-Mail Hausarzt</label><input id="cf-hausarzt-email" type="email"></div>
+      <div class="form-group"><label>Nächster Arzttermin</label><input id="cf-arzttermin" type="date"></div>
+      <div class="form-group full"><label>Diagnosen</label><textarea id="cf-diagnosen" rows="2"></textarea></div>
+      <div class="form-group full"><label>Medikamente</label><textarea id="cf-medikamente" rows="2"></textarea></div>
+      <div class="form-group full"><label>Allergien</label><input id="cf-allergien"></div>
+      <div class="form-group"><label>Ernährung & Trinken</label><textarea id="cf-ernaehrung" rows="2" placeholder="Isst/trinkt ausreichend? Besonderes?"></textarea></div>
+      <div class="form-group"><label>Schlaf & Tagesform</label><textarea id="cf-schlaf" rows="2" placeholder="Schläft gut? Tagesmüdigkeit?"></textarea></div>
+      <div class="form-group"><label>Orientierung</label>
+        <select id="cf-orientierung"><option value="">–</option><option>Voll orientiert</option><option>Leicht eingeschränkt</option><option>Deutlich eingeschränkt</option><option>Stark eingeschränkt</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Wohn- & Lebenssituation</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Wohnsituation</label><input id="cf-wohnsituation" placeholder="z.B. Alleinlebend, mit Partner"></div>
+      <div class="form-group"><label>Wohnumfeld</label><input id="cf-wohnumfeld" placeholder="z.B. 3.OG, Aufzug, Garten"></div>
+      <div class="form-group"><label>Haustier</label><input id="cf-haustier" placeholder="z.B. Katze Mimi"></div>
+      <div class="form-group"><label>Beruf (ehem.)</label><input id="cf-beruf"></div>
+      <div class="form-group full"><label>Familie</label><textarea id="cf-familie" rows="2" placeholder="z.B. 1 Sohn, 2 Enkel"></textarea></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Persönlichkeit & Methodik</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Hobbys</label><input id="cf-hobbys"></div>
+      <div class="form-group full"><label>Interessen</label><input id="cf-interessen"></div>
+      <div class="form-group full"><label>Lieblingsthemen im Gespräch</label><textarea id="cf-lieblingsthemen" rows="2"></textarea></div>
+      <div class="form-group full"><label>Häufige Worte & Sätze (Lebenshaltung)</label><textarea id="cf-worte" rows="2" placeholder='z.B. "Früher war alles besser", "Hauptsache gesund"'></textarea></div>
+      <div class="form-group"><label>Methodik sehr gern</label><textarea id="cf-methodik-gern" rows="2" placeholder="z.B. Vorlesen, Spaziergänge"></textarea></div>
+      <div class="form-group"><label>Methodik eher ungern</label><textarea id="cf-methodik-ungern" rows="2" placeholder="z.B. Laute Musik"></textarea></div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-section-title">Notfall & Termine</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Notfallkontakt A (Tel.)</label><input id="cf-notfall-a"></div>
+      <div class="form-group"><label>Notfallkontakt B (Tel.)</label><input id="cf-notfall-b"></div>
+      <div class="form-group full"><label>Wichtige Termine / Geburtstage Angehörige</label><textarea id="cf-termine" rows="2" placeholder="z.B. Sohn Hans: 12.05., Enkelin: 03.09."></textarea></div>
+      <div class="form-group full"><label>Sonstige Notizen</label><textarea id="cf-notizen" rows="2"></textarea></div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-customer')">Abbrechen</button>
+    <button type="submit" class="btn btn-primary">Speichern</button>
+  </div>
+</form>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-visit">
+  <div class="modal">
+    <h3 id="visit-form-title">Neuer Besuch</h3>
+    <form id="visit-form" onsubmit="saveVisit(event)">
+      <input type="hidden" id="vf-id">
+      <input type="hidden" id="vf-customer-id">
+
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="form-group"><label>Besuchsdatum</label><input id="vf-datum" type="date" required></div>
+      <div class="form-group"><label>Heute Geburtstag?</label>
+        <select id="vf-geburtstag"><option>Nein</option><option>Ja</option></select>
+      </div>
+      <div class="form-group"><label>Uhrzeit von</label><input id="vf-von" type="time" required></div>
+      <div class="form-group"><label>Uhrzeit bis</label><input id="vf-bis" type="time" required></div>
+      <div class="form-group"><label>Art des Besuchs</label>
+        <select id="vf-art"><option>Gespräch</option><option>Spaziergang</option><option>Einkauf</option><option>Begleitung Arzt</option><option>Sonstiges</option></select>
+      </div>
+      <div class="form-group"><label>Stimmung / Befinden</label>
+        <select id="vf-stimmung"><option>Sehr gut</option><option>Gut gelaunt</option><option>Gut</option><option>Neutral</option><option>Etwas niedergeschlagen</option><option>Schlecht</option><option>Besorgniserregend</option></select>
+      </div>
+      <div class="form-group full"><label>Notizen</label><textarea id="vf-notizen" rows="3"></textarea></div>
+      <div class="form-group full"><label>Merke (für nächsten Besuch)</label><textarea id="vf-merke" rows="2"></textarea></div>
+      <div class="form-group full"><label>To-Dos</label><textarea id="vf-todos" rows="2"></textarea></div>
+      <div class="form-group"><label>Auffälligkeiten</label>
+        <select id="vf-auff"><option>Keine</option><option>Leicht</option><option>Relevant</option></select>
+      </div>
+      <div class="form-group"><label>Besuch bestätigt</label>
+        <select id="vf-bestaetigt"><option>Ja</option><option>Nein</option></select>
+      </div>
+      <div class="form-group full"><label>Auffälligkeiten Detail</label><textarea id="vf-auff-detail" rows="2"></textarea></div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-visit')">Abbrechen</button>
+    <button type="submit" class="btn btn-primary">Speichern</button>
+  </div>
+</form>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-data">
+  <div class="modal">
+    <h3>Backup & Daten</h3>
+    <div class="data-section">
+      <h3>📤 Daten exportieren</h3>
+      <p>Speichert alle Kunden und Besuche als JSON-Datei. Lege diese Datei in iCloud ab, um sie auf einem anderen Gerät zu importieren.</p>
+      <button class="btn btn-primary" onclick="exportData()">Export herunterladen</button>
+    </div>
+    <div class="data-section">
+      <h3>📥 Daten importieren</h3>
+      <p>Lade eine zuvor exportierte JSON-Datei. Achtung: Bestehende Daten werden überschrieben!</p>
+      <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="font-size:0.9rem;">
+    </div>
+    <div class="data-section">
+      <h3>🗑️ Alle Daten löschen</h3>
+      <p>Löscht alle Kunden und Besuche unwiderruflich.</p>
+      <button class="btn btn-danger btn-small" onclick="clearAllData()">Alle Daten löschen</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-data')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA STORE ───
+let customers = [];
+let visits = [];
+
+function load() {
+  try {
+    customers = JSON.parse(localStorage.getItem('vd_customers') || '[]');
+    visits = JSON.parse(localStorage.getItem('vd_visits') || '[]');
+  } catch(e) { customers = []; visits = []; }
+}
+
+function save() {
+  localStorage.setItem('vd_customers', JSON.stringify(customers));
+  localStorage.setItem('vd_visits', JSON.stringify(visits));
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+// ─── NAVIGATION ───
+let currentView = 'dashboard';
+let currentCustomerId = null;
+
+function showView(name) {
+  currentView = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (name === 'dashboard') document.querySelectorAll('.nav-tab')[0].classList.add('active');
+  if (name === 'customers' || name === 'detail') document.querySelectorAll('.nav-tab')[1].classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'customers') renderCustomerList();
+  if (name === 'detail') renderDetail();
+}
+
+// ─── DASHBOARD ───
+function renderDashboard() {
+  const active = customers.filter(c => c.status === 'Aktiv').length;
+  const total = visits.length;
+  const relevant = visits.filter(v => v.auff === 'Relevant').length;
+  const avgDur = total > 0 ? Math.round(visits.reduce((s,v) => s + (calcDuration(v.von, v.bis)||0), 0) / total) : 0;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">Aktive Kunden</div></div>
+    <div class="stat-card"><div class="stat-value">${customers.length}</div><div class="stat-label">Kunden gesamt</div></div>
+    <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Besuche gesamt</div></div>
+    <div class="stat-card"><div class="stat-value">${avgDur} Min</div><div class="stat-label">⌀ Besuchsdauer</div></div>
+  `;
+
+  const recent = [...visits].sort((a,b) => b.datum.localeCompare(a.datum)).slice(0, 5);
+  if (recent.length === 0) {
+    document.getElementById('recent-visits').innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Noch keine Besuche dokumentiert</p></div>';
+    return;
+  }
+  document.getElementById('recent-visits').innerHTML = recent.map(v => {
+    const c = customers.find(c => c.id === v.customerId);
+    const name = c ? c.name : '?';
+    const dur = calcDuration(v.von, v.bis);
+    const auffClass = v.auff === 'Relevant' ? 'auff-relevant' : v.auff === 'Leicht' ? 'auff-leicht' : '';
+    return `<div class="visit-card ${auffClass}" onclick="openCustomerDetail('${v.customerId}')">
+      <div class="visit-header">
+        <span class="visit-date">${formatDate(v.datum)} · ${name}</span>
+        <span class="visit-duration">${dur ? dur + ' Min' : ''} · ${v.art}</span>
+      </div>
+      ${v.notizen ? `<div class="visit-notes"><span class="note-label">Notizen:</span> <p>${esc(v.notizen).substring(0,120)}${v.notizen.length > 120 ? '…' : ''}</p></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ─── CUSTOMER LIST ───
+function renderCustomerList() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = customers.filter(c => c.name.toLowerCase().includes(q));
+
+  if (filtered.length === 0) {
+    document.getElementById('customer-list').innerHTML = customers.length === 0
+      ? '<div class="empty-state"><div class="icon">👤</div><p>Noch keine Kunden angelegt.<br>Klicke auf „＋ Neuer Kunde"</p></div>'
+      : '<div class="empty-state"><div class="icon">🔍</div><p>Kein Kunde gefunden</p></div>';
+    return;
+  }
+
+  document.getElementById('customer-list').innerHTML = filtered.map(c => {
+    const visitCount = visits.filter(v => v.customerId === c.id).length;
+    const initials = c.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const badgeClass = c.status === 'Aktiv' ? 'badge-active' : c.status === 'Pausiert' ? 'badge-paused' : 'badge-ended';
+    const lastVisit = getLastVisit(c.id);
+    const meta = lastVisit ? `Letzter Besuch: ${formatDate(lastVisit.datum)}` : 'Noch kein Besuch';
+    return `<div class="customer-card" onclick="openCustomerDetail('${c.id}')">
+      <div class="avatar">${initials}</div>
+      <div class="info">
+        <div class="name">${esc(c.name)}</div>
+        <div class="meta">${meta}</div>
+      </div>
+      <div class="badges">
+        <span class="badge ${badgeClass}">${c.status}</span>
+        <span class="badge badge-visit">${visitCount} Besuche</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── CUSTOMER DETAIL ───
+function openCustomerDetail(id) {
+  currentCustomerId = id;
+  showView('detail');
+}
+
+function renderDetail() {
+  const c = customers.find(c => c.id === currentCustomerId);
+  if (!c) { showView('customers'); return; }
+
+  document.getElementById('detail-name').textContent = c.name;
+  showDetailTab('stamm');
+}
+
+function showDetailTab(tab) {
+  document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.detail-tab').forEach(t => { if (t.textContent.toLowerCase().includes(tab)) t.classList.add('active'); });
+  document.getElementById('detail-stamm').style.display = tab === 'stamm' ? 'block' : 'none';
+  document.getElementById('detail-besuche').style.display = tab === 'besuche' ? 'block' : 'none';
+
+  if (tab === 'stamm') renderStammDetail();
+  if (tab === 'besuche') renderBesucheDetail();
+}
+
+function renderStammDetail() {
+  const c = customers.find(c => c.id === currentCustomerId);
+  if (!c) return;
+  const f = (label, val) => val ? `<div><span class="note-label">${label}</span><p>${esc(val)}</p></div>` : '';
+
+  document.getElementById('detail-stamm').innerHTML = `
+    <div class="form-card">
+      <div class="form-section-title">Grunddaten</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.9rem;">
+        ${f('Geburtsdatum', formatDate(c.birthday))} ${f('Status', c.status)} ${f('Pflegegrad', c.pflegegrad)}
+        ${f('Bezahlt', c.bezahlt)} ${f('Urlaub', c.urlaub)} ${f('Erstbesuch', formatDate(c.erstbesuch))}
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">Gesundheit</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.9rem;">
+        ${f('Hausarzt', c.hausarzt)} ${f('Tel. Hausarzt', c.hausarztTel)} ${f('E-Mail Hausarzt', c.hausarztEmail)}
+        ${f('Nächster Arzttermin', formatDate(c.arzttermin))} ${f('Orientierung', c.orientierung)}
+      </div>
+      ${f('Diagnosen', c.diagnosen)} ${f('Medikamente', c.medikamente)} ${f('Allergien', c.allergien)}
+      ${f('Ernährung & Trinken', c.ernaehrung)} ${f('Schlaf & Tagesform', c.schlaf)}
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">Wohn- & Lebenssituation</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.9rem;">
+        ${f('Wohnsituation', c.wohnsituation)} ${f('Wohnumfeld', c.wohnumfeld)} ${f('Haustier', c.haustier)} ${f('Beruf', c.beruf)}
+      </div>
+      ${f('Familie', c.familie)}
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">Persönlichkeit & Methodik</div>
+      ${f('Hobbys', c.hobbys)} ${f('Interessen', c.interessen)} ${f('Lieblingsthemen', c.lieblingsthemen)}
+      ${f('Häufige Worte & Sätze', c.worte)}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.9rem;">
+        ${f('Methodik gern', c.methodikGern)} ${f('Methodik ungern', c.methodikUngern)}
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="form-section-title">Notfall & Termine</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.9rem;">
+        ${f('Notfall A', c.notfallA)} ${f('Notfall B', c.notfallB)}
+      </div>
+      ${f('Wichtige Termine', c.termine)} ${f('Notizen', c.notizen)}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-primary" onclick="editCustomer('${c.id}')">✏️ Bearbeiten</button>
+      <button class="btn btn-danger btn-small" onclick="deleteCustomer('${c.id}')">🗑️ Löschen</button>
+    </div>
+  `;
+}
+
+function renderBesucheDetail() {
+  const cv = visits.filter(v => v.customerId === currentCustomerId).sort((a,b) => b.datum.localeCompare(a.datum));
+  const lastVisit = cv.length > 0 ? cv[0] : null;
+
+  let html = `<div class="toolbar"><button class="btn btn-primary" onclick="openVisitForm()">＋ Neuer Besuch</button></div>`;
+
+  if (cv.length === 0) {
+    html += '<div class="empty-state"><div class="icon">📋</div><p>Noch keine Besuche dokumentiert</p></div>';
+  } else {
+    html += cv.map((v, i) => {
+      const dur = calcDuration(v.von, v.bis);
+      const prevVisit = cv[i + 1];
+      const auffClass = v.auff === 'Relevant' ? 'auff-relevant' : v.auff === 'Leicht' ? 'auff-leicht' : '';
+      return `<div class="visit-card ${auffClass}">
+        <div class="visit-header">
+          <span class="visit-date">${formatDate(v.datum)}${v.geburtstag === 'Ja' ? ' 🎂' : ''}</span>
+          <span class="visit-duration">${v.von}–${v.bis} (${dur ? dur + ' Min' : '?'})</span>
+        </div>
+        <div class="visit-details">
+          <div><span class="label">Art:</span> ${v.art}</div>
+          <div><span class="label">Stimmung:</span> ${v.stimmung}</div>
+          <div><span class="label">Auffälligkeiten:</span> ${v.auff}</div>
+          <div><span class="label">Bestätigt:</span> ${v.bestaetigt}</div>
+          ${prevVisit ? `<div><span class="label">Vorheriger Besuch:</span> ${formatDate(prevVisit.datum)}</div>` : ''}
+        </div>
+        ${v.notizen || v.merke || v.todos || v.auffDetail ? `<div class="visit-notes">
+          ${v.notizen ? `<span class="note-label">Notizen:</span><p>${esc(v.notizen)}</p>` : ''}
+          ${v.merke ? `<span class="note-label">Merke:</span><p>${esc(v.merke)}</p>` : ''}
+          ${v.todos ? `<span class="note-label">To-Dos:</span><p>${esc(v.todos)}</p>` : ''}
+          ${v.auffDetail ? `<span class="note-label">Auffälligkeiten Detail:</span><p>${esc(v.auffDetail)}</p>` : ''}
+        </div>` : ''}
+        <div class="visit-actions">
+          <button class="btn btn-secondary btn-small" onclick="editVisit('${v.id}')">✏️</button>
+          <button class="btn btn-danger btn-small" onclick="deleteVisit('${v.id}')">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('detail-besuche').innerHTML = html;
+}
+
+// ─── CUSTOMER FORM ───
+const customerFields = ['name','birthday','status','pflegegrad','bezahlt','urlaub','erstbesuch',
+  'hausarzt','hausarztTel','hausarztEmail','arzttermin','diagnosen','medikamente','allergien',
+  'ernaehrung','schlaf','orientierung','wohnsituation','wohnumfeld','haustier','beruf','familie',
+  'hobbys','interessen','lieblingsthemen','worte','methodikGern','methodikUngern',
+  'notfallA','notfallB','termine','notizen'];
+
+const cfMap = {
+  name:'cf-name', birthday:'cf-birthday', status:'cf-status', pflegegrad:'cf-pflegegrad',
+  bezahlt:'cf-bezahlt', urlaub:'cf-urlaub', erstbesuch:'cf-erstbesuch',
+  hausarzt:'cf-hausarzt', hausarztTel:'cf-hausarzt-tel', hausarztEmail:'cf-hausarzt-email',
+  arzttermin:'cf-arzttermin', diagnosen:'cf-diagnosen', medikamente:'cf-medikamente',
+  allergien:'cf-allergien', ernaehrung:'cf-ernaehrung', schlaf:'cf-schlaf',
+  orientierung:'cf-orientierung', wohnsituation:'cf-wohnsituation', wohnumfeld:'cf-wohnumfeld',
+  haustier:'cf-haustier', beruf:'cf-beruf', familie:'cf-familie', hobbys:'cf-hobbys',
+  interessen:'cf-interessen', lieblingsthemen:'cf-lieblingsthemen', worte:'cf-worte',
+  methodikGern:'cf-methodik-gern', methodikUngern:'cf-methodik-ungern',
+  notfallA:'cf-notfall-a', notfallB:'cf-notfall-b', termine:'cf-termine', notizen:'cf-notizen'
+};
+
+function openCustomerForm() {
+  document.getElementById('customer-form-title').textContent = 'Neuer Kunde';
+  document.getElementById('cf-id').value = '';
+  customerFields.forEach(f => {
+    const el = document.getElementById(cfMap[f]);
+    if (el) el.value = f === 'status' ? 'Aktiv' : f === 'bezahlt' ? 'Ja' : '';
+  });
+  document.getElementById('modal-customer').classList.add('active');
+}
+
+function editCustomer(id) {
+  const c = customers.find(c => c.id === id);
+  if (!c) return;
+  document.getElementById('customer-form-title').textContent = 'Kunde bearbeiten';
+  document.getElementById('cf-id').value = id;
+  customerFields.forEach(f => {
+    const el = document.getElementById(cfMap[f]);
+    if (el) el.value = c[f] || '';
+  });
+  document.getElementById('modal-customer').classList.add('active');
+}
+
+function saveCustomer(e) {
+  e.preventDefault();
+  const id = document.getElementById('cf-id').value;
+  const data = {};
+  customerFields.forEach(f => { data[f] = document.getElementById(cfMap[f]).value.trim(); });
+
+  if (id) {
+    const idx = customers.findIndex(c => c.id === id);
+    if (idx >= 0) customers[idx] = { ...customers[idx], ...data };
+  } else {
+    data.id = genId();
+    customers.push(data);
+  }
+  save();
+  closeModal('modal-customer');
+  toast(id ? 'Kunde aktualisiert' : 'Kunde angelegt');
+  if (currentCustomerId) renderDetail();
+  else renderCustomerList();
+}
+
+function deleteCustomer(id) {
+  if (!confirm('Kunde und alle zugehörigen Besuche wirklich löschen?')) return;
+  customers = customers.filter(c => c.id !== id);
+  visits = visits.filter(v => v.customerId !== id);
+  save();
+  toast('Kunde gelöscht');
+  showView('customers');
+}
+
+// ─── VISIT FORM ───
+function openVisitForm() {
+  document.getElementById('visit-form-title').textContent = 'Neuer Besuch';
+  document.getElementById('vf-id').value = '';
+  document.getElementById('vf-customer-id').value = currentCustomerId;
+  document.getElementById('vf-datum').value = new Date().toISOString().split('T')[0];
+  document.getElementById('vf-von').value = '';
+  document.getElementById('vf-bis').value = '';
+  document.getElementById('vf-geburtstag').value = 'Nein';
+  document.getElementById('vf-art').value = 'Gespräch';
+  document.getElementById('vf-stimmung').value = 'Gut';
+  document.getElementById('vf-notizen').value = '';
+  document.getElementById('vf-merke').value = '';
+  document.getElementById('vf-todos').value = '';
+  document.getElementById('vf-auff').value = 'Keine';
+  document.getElementById('vf-auff-detail').value = '';
+  document.getElementById('vf-bestaetigt').value = 'Ja';
+
+  // Auto-detect birthday
+  const c = customers.find(c => c.id === currentCustomerId);
+  if (c && c.birthday) {
+    const today = new Date();
+    const bd = new Date(c.birthday);
+    if (today.getMonth() === bd.getMonth() && today.getDate() === bd.getDate()) {
+      document.getElementById('vf-geburtstag').value = 'Ja';
+    }
+  }
+
+  document.getElementById('modal-visit').classList.add('active');
+}
+
+function editVisit(id) {
+  const v = visits.find(v => v.id === id);
+  if (!v) return;
+  document.getElementById('visit-form-title').textContent = 'Besuch bearbeiten';
+  document.getElementById('vf-id').value = id;
+  document.getElementById('vf-customer-id').value = v.customerId;
+  document.getElementById('vf-datum').value = v.datum;
+  document.getElementById('vf-von').value = v.von;
+  document.getElementById('vf-bis').value = v.bis;
+  document.getElementById('vf-geburtstag').value = v.geburtstag;
+  document.getElementById('vf-art').value = v.art;
+  document.getElementById('vf-stimmung').value = v.stimmung;
+  document.getElementById('vf-notizen').value = v.notizen || '';
+  document.getElementById('vf-merke').value = v.merke || '';
+  document.getElementById('vf-todos').value = v.todos || '';
+  document.getElementById('vf-auff').value = v.auff;
+  document.getElementById('vf-auff-detail').value = v.auffDetail || '';
+  document.getElementById('vf-bestaetigt').value = v.bestaetigt;
+  document.getElementById('modal-visit').classList.add('active');
+}
+
+function saveVisit(e) {
+  e.preventDefault();
+  const id = document.getElementById('vf-id').value;
+  const data = {
+    customerId: document.getElementById('vf-customer-id').value,
+    datum: document.getElementById('vf-datum').value,
+    von: document.getElementById('vf-von').value,
+    bis: document.getElementById('vf-bis').value,
+    geburtstag: document.getElementById('vf-geburtstag').value,
+    art: document.getElementById('vf-art').value,
+    stimmung: document.getElementById('vf-stimmung').value,
+    notizen: document.getElementById('vf-notizen').value.trim(),
+    merke: document.getElementById('vf-merke').value.trim(),
+    todos: document.getElementById('vf-todos').value.trim(),
+    auff: document.getElementById('vf-auff').value,
+    auffDetail: document.getElementById('vf-auff-detail').value.trim(),
+    bestaetigt: document.getElementById('vf-bestaetigt').value,
+  };
+
+  if (id) {
+    const idx = visits.findIndex(v => v.id === id);
+    if (idx >= 0) visits[idx] = { ...visits[idx], ...data };
+  } else {
+    data.id = genId();
+    visits.push(data);
+  }
+  save();
+  closeModal('modal-visit');
+  toast(id ? 'Besuch aktualisiert' : 'Besuch gespeichert');
+  renderBesucheDetail();
+}
+
+function deleteVisit(id) {
+  if (!confirm('Besuch wirklich löschen?')) return;
+  visits = visits.filter(v => v.id !== id);
+  save();
+  toast('Besuch gelöscht');
+  renderBesucheDetail();
+}
+
+// ─── EXPORT / IMPORT ───
+function exportData() {
+  const data = JSON.stringify({ customers, visits, exportDate: new Date().toISOString() }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `vertraute-doku-backup-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup heruntergeladen');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!confirm('Achtung: Alle bestehenden Daten werden überschrieben! Fortfahren?')) { e.target.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.customers && data.visits) {
+        customers = data.customers;
+        visits = data.visits;
+        save();
+        toast('Daten importiert');
+        closeModal('modal-data');
+        showView('dashboard');
+      } else {
+        alert('Ungültige Datei: Keine Kunden/Besuche gefunden.');
+      }
+    } catch(err) {
+      alert('Fehler beim Lesen der Datei.');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData() {
+  if (!confirm('ALLE Daten unwiderruflich löschen?')) return;
+  if (!confirm('Wirklich sicher? Das kann nicht rückgängig gemacht werden!')) return;
+  customers = [];
+  visits = [];
+  save();
+  toast('Alle Daten gelöscht');
+  closeModal('modal-data');
+  showView('dashboard');
+}
+
+// ─── HELPERS ───
+function calcDuration(von, bis) {
+  if (!von || !bis) return null;
+  const [h1,m1] = von.split(':').map(Number);
+  const [h2,m2] = bis.split(':').map(Number);
+  return (h2 * 60 + m2) - (h1 * 60 + m1);
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const parts = d.split('-');
+  if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  return d;
+}
+
+function getLastVisit(customerId) {
+  const cv = visits.filter(v => v.customerId === customerId).sort((a,b) => b.datum.localeCompare(a.datum));
+  return cv[0] || null;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function showDataModal() { document.getElementById('modal-data').classList.add('active'); }
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+// ─── INIT ───
+load();
+renderDashboard();
+</script>
+
+</body>
+</html>
